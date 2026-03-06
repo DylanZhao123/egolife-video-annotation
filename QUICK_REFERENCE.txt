@@ -1,0 +1,155 @@
+===============================================================================
+                    VIDEO ANNOTATION SYSTEM - QUICK REFERENCE
+===============================================================================
+
+>> CURRENT STATUS: Local app is running with clean UI (no emojis)
+
+===============================================================================
+                               VIEW THE APP
+===============================================================================
+
+Local App (Running Now):
+   http://localhost:8501
+
+Features Working:
+   [x] Question loading (120 questions)
+   [x] Navigation (next/previous/jump)
+   [x] Answer selection
+   [x] Progress tracking
+   [ ] Videos (need OneDrive configuration)
+
+===============================================================================
+                          COMPLETE SETUP GUIDE
+===============================================================================
+
+READ THIS FILE: START_FROM_SCRATCH.md
+
+Quick Summary:
+
+Step 1: View Local App (DONE)
+   >> Already running at http://localhost:8501
+
+Step 2: Configure Videos (10 minutes)
+   >> Run: python tools/quick_setup.py
+   >> Need: Microsoft Graph API token from Graph Explorer
+
+Step 3: Push to GitHub (3 minutes)
+   >> Create repo at: https://github.com/new
+   >> Run: git remote add origin https://github.com/YOUR-USERNAME/video-annotation-system.git
+   >> Run: git branch -M main
+   >> Run: git push -u origin main
+
+Step 4: Deploy to Cloud (5 minutes)
+   >> Visit: https://share.streamlit.io
+   >> Click: New app
+   >> Select: Your repository
+   >> Deploy!
+
+Total Time: ~20 minutes
+
+===============================================================================
+                           ESSENTIAL COMMANDS
+===============================================================================
+
+Start Local App:
+   cd C:\Users\Dylan\LabStuff\VidsAnnotaionWebsite
+   streamlit run app.py
+
+Configure Videos (Auto):
+   python tools/quick_setup.py
+
+Open All Deployment Pages (Auto):
+   python auto_deploy.py
+
+Push to GitHub:
+   git add .
+   git commit -m "Your message"
+   git push
+
+===============================================================================
+                          IMPORTANT FILES
+===============================================================================
+
+START_FROM_SCRATCH.md     - Complete step-by-step guide (READ THIS FIRST)
+QUICK_REFERENCE.txt       - This file
+app.py                    - Main application (clean UI, no emojis)
+tools/quick_setup.py      - Automatic video configuration
+data/video_mapping.json   - Video URL configuration (edit if needed)
+
+===============================================================================
+                         WHAT CHANGED JUST NOW
+===============================================================================
+
+[x] Removed all emojis and special symbols from UI
+[x] Created START_FROM_SCRATCH.md guide
+[x] Added auto_deploy.py helper script
+[x] Committed changes to Git
+[x] Restarted app with clean UI
+
+UI is now professional and formal.
+
+===============================================================================
+                            NEXT ACTIONS
+===============================================================================
+
+Option A: Test Without Videos (Immediate)
+   1. Browser already open at http://localhost:8501
+   2. Click through questions
+   3. Test interface
+
+Option B: Full Setup with Videos (~20 min)
+   1. Open START_FROM_SCRATCH.md
+   2. Follow steps 2-4
+   3. Get your app online with videos
+
+Option C: Quick Deploy Without Videos (~10 min)
+   1. Skip video setup (can add later)
+   2. Just do steps 3-4
+   3. Deploy basic version first
+
+===============================================================================
+                          TROUBLESHOOTING
+===============================================================================
+
+App not loading?
+   >> Restart: streamlit run app.py
+
+Browser closed?
+   >> Open: http://localhost:8501
+
+Need help?
+   >> Read: START_FROM_SCRATCH.md (step-by-step)
+   >> Read: ONEDRIVE_SETUP.md (video setup details)
+   >> Read: DEPLOYMENT.md (deployment details)
+
+Token expired?
+   >> Get new token from Graph Explorer
+   >> Valid for 1 hour
+
+===============================================================================
+                              QUICK LINKS
+===============================================================================
+
+Local App:         http://localhost:8501
+Graph Explorer:    https://developer.microsoft.com/en-us/graph/graph-explorer
+GitHub New Repo:   https://github.com/new
+Streamlit Cloud:   https://share.streamlit.io
+
+===============================================================================
+                            PROJECT STATUS
+===============================================================================
+
+Code:              100% Complete
+Documentation:     100% Complete
+Local Testing:     Ready
+Video Config:      Pending (optional)
+GitHub Upload:     Pending
+Cloud Deployment:  Pending
+
+Estimated time to fully deploy: 20 minutes
+
+===============================================================================
+
+Questions? Check START_FROM_SCRATCH.md for detailed instructions.
+
+===============================================================================
