@@ -1,0 +1,48 @@
+===============================================================================
+                    GITHUB DEPLOYMENT - IN PROGRESS
+===============================================================================
+
+Step 1: CREATE REPOSITORY (You're doing this now)
+-------------------------------------------------------------------------------
+
+In the GitHub page that just opened, fill in:
+
+  Repository name:    egolife-video-annotation
+  
+  Description:        EgoLife video annotation system for episodic memory
+  
+  Visibility:         PUBLIC (must be public for free Streamlit)
+  
+  Initialize:         DO NOT check any boxes
+  
+  Then click:         [Create repository]
+
+===============================================================================
+
+Step 2: RUN DEPLOYMENT SCRIPT (After creating repository)
+-------------------------------------------------------------------------------
+
+After you click "Create repository", come back here and run:
+
+  push_to_github.bat
+
+This will:
+  - Ask for your GitHub username
+  - Configure git remote
+  - Push all code to GitHub
+  - Automatically open Streamlit Cloud for deployment
+
+===============================================================================
+
+ALTERNATIVE: Manual Commands
+-------------------------------------------------------------------------------
+
+If you prefer to run commands manually:
+
+  git remote add origin https://github.com/YOUR-USERNAME/egolife-video-annotation.git
+  git branch -M main
+  git push -u origin main
+
+Replace YOUR-USERNAME with your actual GitHub username.
+
+===============================================================================
