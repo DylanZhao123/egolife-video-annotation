@@ -1,6 +1,12 @@
 # 🎬 Video Annotation System
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://egolife-video-annotation-a9stffvxovjypbfhcbbhnp.streamlit.app/)
+
 A Streamlit-based web application for annotating videos with multiple-choice questions, designed for the EgoLife video dataset.
+
+## 🌐 Live Demo
+
+**Access the application here:** [https://egolife-video-annotation-a9stffvxovjypbfhcbbhnp.streamlit.app/](https://egolife-video-annotation-a9stffvxovjypbfhcbbhnp.streamlit.app/)
 
 ## Features
 
@@ -68,9 +74,15 @@ streamlit run app.py
 
 The app will open in your default browser at `http://localhost:8501`
 
-### Deploying to Streamlit Cloud
+### Deployed Application
 
-1. Push this repository to GitHub
+This application is currently deployed on Streamlit Community Cloud:
+
+**Live URL:** [https://egolife-video-annotation-a9stffvxovjypbfhcbbhnp.streamlit.app/](https://egolife-video-annotation-a9stffvxovjypbfhcbbhnp.streamlit.app/)
+
+### Deploying Your Own Instance
+
+1. Fork this repository on GitHub
 2. Go to [share.streamlit.io](https://share.streamlit.io)
 3. Connect your GitHub repository
 4. Select `app.py` as the main file
