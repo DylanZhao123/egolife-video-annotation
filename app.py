@@ -175,7 +175,7 @@ def main():
         query_time = current_question.get('query_time', '')
         if query_time:
             st.markdown("**Query Context Video:**")
-            video_loader.display_video_link(query_time)
+            video_loader.display_video_iframe(query_time)
 
         # Evidence videos
         evidence_times = current_question.get('evidence_times', [])
@@ -185,7 +185,7 @@ def main():
             for idx, evidence in enumerate(evidence_times):
                 clip_id = evidence.get('clip_id', '')
                 with st.expander(f"📹 Evidence {idx + 1}", expanded=(idx == 0)):
-                    video_loader.display_video_link(clip_id)
+                    video_loader.display_video_iframe(clip_id)
 
                     # Show object snapshot info
                     obj_snapshot = evidence.get('object_snapshot', {})

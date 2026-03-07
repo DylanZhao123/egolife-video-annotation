@@ -147,6 +147,35 @@ class VideoLoaderExternalLinks:
         </div>
         """, unsafe_allow_html=True)
 
+    def display_video_iframe(self, clip_id, width=640, height=480):
+        """
+        Display video using iframe embed (works best for Google Drive)
+
+        Args:
+            clip_id: Video clip ID
+            width: iframe width in pixels
+            height: iframe height in pixels
+        """
+        video_url = self.get_video_url(clip_id)
+
+        if not video_url:
+            st.info(f"Video not configured: {clip_id}")
+            return
+
+        # Display iframe
+        iframe_html = f"""
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
+            <iframe
+                src="{video_url}"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"
+                frameborder="0"
+                allow="autoplay; encrypted-media"
+                allowfullscreen>
+            </iframe>
+        </div>
+        """
+        st.markdown(iframe_html, unsafe_allow_html=True)
+
     def video_exists(self, clip_id):
         """Check if video exists in mapping"""
         return clip_id in self.video_mapping
