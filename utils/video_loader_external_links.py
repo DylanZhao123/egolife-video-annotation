@@ -4,6 +4,8 @@ External Video Link Generator
 
 Generates clickable links to view videos externally (Google Drive, OneDrive, etc.)
 生成可点击的外部视频查看链接（Google Drive、OneDrive等）
+
+Version: 1.1.0 - Added iframe embedding support for Google Drive
 """
 
 import streamlit as st

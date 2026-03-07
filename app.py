@@ -1,6 +1,7 @@
 """
 Video Annotation System
 A Streamlit application for annotating videos with multiple-choice questions
+Version: 1.1.0 - Google Drive iframe embedding support
 """
 
 import streamlit as st
