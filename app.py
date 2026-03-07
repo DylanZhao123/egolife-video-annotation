@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Import utility modules
 from utils.data_parser import load_questions, format_choice_text
-from utils.video_loader import VideoLoader
+from utils.video_loader_external_links import VideoLoaderExternalLinks as VideoLoader
 from utils.session_manager import initialize_session, save_progress, load_progress
 from utils.response_recorder import save_response, export_responses
 import config
@@ -174,12 +174,8 @@ def main():
         # Main query video (if different from evidence)
         query_time = current_question.get('query_time', '')
         if query_time:
-            st.markdown(f"**Query Context Video:** `{query_time}`")
-            main_video_url = video_loader.get_video_url(query_time)
-            if main_video_url:
-                st.video(main_video_url)
-            else:
-                st.warning(f"⚠️ Video not found: {query_time}")
+            st.markdown("**Query Context Video:**")
+            video_loader.display_video_link(query_time)
 
         # Evidence videos
         evidence_times = current_question.get('evidence_times', [])
@@ -188,12 +184,8 @@ def main():
 
             for idx, evidence in enumerate(evidence_times):
                 clip_id = evidence.get('clip_id', '')
-                with st.expander(f"📹 Evidence {idx + 1}: {clip_id}", expanded=(idx == 0)):
-                    video_url = video_loader.get_video_url(clip_id)
-                    if video_url:
-                        st.video(video_url)
-                    else:
-                        st.info(f"Video not configured: {clip_id}")
+                with st.expander(f"📹 Evidence {idx + 1}", expanded=(idx == 0)):
+                    video_loader.display_video_link(clip_id)
 
                     # Show object snapshot info
                     obj_snapshot = evidence.get('object_snapshot', {})
@@ -242,7 +234,7 @@ def main():
                 support_clip = selected_choice_data.get('support_clip_id')
                 if support_clip:
                     with st.expander(f"🎥 View Support Video for Choice {selected_choice}"):
-                        support_url = video_loader.get_video_url(support_clip)
+                        support_url = video_loader.get_video_link(support_clip)
                         if support_url:
                             st.video(support_url)
                         else:
