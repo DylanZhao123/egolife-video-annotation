@@ -62,6 +62,40 @@ class VideoLoaderExternalLinks:
 
         return None
 
+    def get_video_url(self, clip_id):
+        """
+        Get embeddable video URL for st.video()
+
+        Args:
+            clip_id: Video clip ID
+
+        Returns:
+            str: Video URL suitable for embedding or None if not found
+        """
+        video_ref = self.video_mapping.get(clip_id)
+
+        if not video_ref:
+            return None
+
+        # If it's already a full URL, check if it needs conversion
+        if video_ref.startswith('http'):
+            # Convert Google Drive view links to embed/preview format
+            if 'drive.google.com/file/d/' in video_ref:
+                # Extract file ID from URL
+                import re
+                match = re.search(r'/file/d/([a-zA-Z0-9_-]+)', video_ref)
+                if match:
+                    file_id = match.group(1)
+                    # Return preview URL for embedding
+                    return f"https://drive.google.com/file/d/{file_id}/preview"
+            return video_ref
+
+        # If it's a Google Drive file ID, generate preview URL
+        if len(video_ref) == 33 and not '/' in video_ref:
+            return f"https://drive.google.com/file/d/{video_ref}/preview"
+
+        return None
+
     def display_video_link(self, clip_id):
         """
         Display clickable button to view video externally
