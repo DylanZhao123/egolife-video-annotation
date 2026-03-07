@@ -12,16 +12,10 @@ from pathlib import Path
 
 # Import utility modules
 from utils.data_parser import load_questions, format_choice_text
-from utils.video_loader_external_links import VideoLoaderExternalLinks as VideoLoader
+from utils.video_loader_onedrive_folder import VideoLoaderOneDriveFolder as VideoLoader
 from utils.session_manager import initialize_session, save_progress, load_progress
 from utils.response_recorder import save_response, export_responses
 import config
-
-# Verify VideoLoader has required methods
-if not hasattr(VideoLoader, 'display_video_iframe'):
-    st.error("ERROR: VideoLoader class missing display_video_iframe method!")
-    st.error(f"Available methods: {[m for m in dir(VideoLoader) if not m.startswith('_')]}")
-    st.stop()
 
 # Page configuration
 st.set_page_config(
@@ -175,8 +169,8 @@ def main():
     with col_left:
         st.subheader("🎬 Video Evidence")
 
-        # Video loader
-        video_loader = VideoLoader()
+        # Video loader with OneDrive folder
+        video_loader = VideoLoader(folder_url=config.ONEDRIVE_VIDEO_FOLDER)
 
         # Main query video (if different from evidence)
         query_time = current_question.get('query_time', '')
