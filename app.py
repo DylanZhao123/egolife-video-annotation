@@ -170,7 +170,10 @@ def main():
         st.subheader("🎬 Video Evidence")
 
         # Video loader with OneDrive folder
-        video_loader = VideoLoader(folder_url=config.ONEDRIVE_VIDEO_FOLDER)
+        # Use getattr with default URL in case config doesn't have it yet (cache issue)
+        onedrive_url = getattr(config, 'ONEDRIVE_VIDEO_FOLDER',
+                               "https://adminliveunc-my.sharepoint.com/:f:/g/personal/ziyangw_ad_unc_edu/IgA_aigeKcG-QKDy08QVHEiEARIVaWMqy6UH-1eFP7TijWA?e=aNCstX")
+        video_loader = VideoLoader(folder_url=onedrive_url)
 
         # Main query video (if different from evidence)
         query_time = current_question.get('query_time', '')
