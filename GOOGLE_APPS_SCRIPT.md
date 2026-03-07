@@ -12,7 +12,7 @@
 
 点击 "新建项目"
 
-#### 3. 粘贴以下代码
+#### 3. 粘贴以下代码（修复版 - 不会截断）
 
 ```javascript
 function generateVideoMapping() {
@@ -20,6 +20,7 @@ function generateVideoMapping() {
   var FOLDER_ID = '1sF-zyyeaXBb68Ran3W-BWNPKv7gvaehQ';
 
   var mapping = {};
+  var videoCount = 0;
 
   // 扫描文件夹
   function scanFolder(folderId, path) {
@@ -32,7 +33,7 @@ function generateVideoMapping() {
       var subfolderName = subfolder.getName();
       var currentPath = path ? path + '/' + subfolderName : subfolderName;
 
-      Logger.log('Scanning: ' + currentPath);
+      console.log('Scanning: ' + currentPath);
       scanFolder(subfolder.getId(), currentPath);
     }
 
@@ -46,30 +47,39 @@ function generateVideoMapping() {
         var clipId = fileName.replace('.mp4', '');
         var fileId = file.getId();
         mapping[clipId] = fileId;
-        Logger.log('  Found: ' + clipId + ' -> ' + fileId);
+        videoCount++;
+
+        // 只打印计数，不打印每个文件（避免日志过大）
+        if (videoCount % 10 == 0) {
+          console.log('  Found ' + videoCount + ' videos so far...');
+        }
       }
     }
   }
 
   // 开始扫描
-  Logger.log('Starting scan...');
+  console.log('Starting scan of folder: ' + FOLDER_ID);
   scanFolder(FOLDER_ID, '');
 
-  // 输出结果
-  Logger.log('');
-  Logger.log('Total videos found: ' + Object.keys(mapping).length);
-  Logger.log('');
-  Logger.log('Copy the JSON below to data/video_mapping.json:');
-  Logger.log('================================================================');
-  Logger.log(JSON.stringify(mapping, null, 2));
-  Logger.log('================================================================');
-
-  // 也创建一个文本文件在 Drive 中
+  // 创建 JSON 文件
+  console.log('Creating JSON file...');
   var jsonContent = JSON.stringify(mapping, null, 2);
-  var folder = DriveApp.getFolderById(FOLDER_ID);
-  var file = folder.createFile('video_mapping.json', jsonContent, MimeType.PLAIN_TEXT);
-  Logger.log('');
-  Logger.log('Also saved to Google Drive: ' + file.getUrl());
+
+  // 保存到 Google Drive 根目录
+  var file = DriveApp.createFile('video_mapping.json', jsonContent, MimeType.PLAIN_TEXT);
+
+  console.log('✓ SUCCESS!');
+  console.log('Total videos found: ' + videoCount);
+  console.log('File created: ' + file.getName());
+  console.log('File URL: ' + file.getUrl());
+  console.log('');
+  console.log('Next steps:');
+  console.log('1. Click the file URL above');
+  console.log('2. Download the file');
+  console.log('3. Copy content to your project: data/video_mapping.json');
+
+  // 返回文件 URL
+  return file.getUrl();
 }
 ```
 
