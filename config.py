@@ -32,8 +32,8 @@ SHOW_FEEDBACK_DELAY = 2  # Seconds to show feedback before advancing
 
 # OneDrive settings (optional)
 ONEDRIVE_BASE_URL = "https://adminliveunc-my.sharepoint.com/personal/ziyangw_ad_unc_edu"
-# OneDrive folder containing all videos (update this with your actual folder link)
-ONEDRIVE_VIDEO_FOLDER = "https://adminliveunc-my.sharepoint.com/personal/ziyangw_ad_unc_edu/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fziyangw%5Fad%5Func%5Fedu%2FDocuments%2FVideoAnnotationProject"
+# OneDrive folder containing all videos
+ONEDRIVE_VIDEO_FOLDER = "https://adminliveunc-my.sharepoint.com/:f:/g/personal/ziyangw_ad_unc_edu/IgA_aigeKcG-QKDy08QVHEiEARIVaWMqy6UH-1eFP7TijWA?e=aNCstX"
 
 # UI customization
 THEME_PRIMARY_COLOR = "#4CAF50"
