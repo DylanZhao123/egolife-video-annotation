@@ -17,6 +17,12 @@ from utils.session_manager import initialize_session, save_progress, load_progre
 from utils.response_recorder import save_response, export_responses
 import config
 
+# Verify VideoLoader has required methods
+if not hasattr(VideoLoader, 'display_video_iframe'):
+    st.error("ERROR: VideoLoader class missing display_video_iframe method!")
+    st.error(f"Available methods: {[m for m in dir(VideoLoader) if not m.startswith('_')]}")
+    st.stop()
+
 # Page configuration
 st.set_page_config(
     page_title="Video Annotation System",
