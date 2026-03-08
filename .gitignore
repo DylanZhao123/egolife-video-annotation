@@ -36,6 +36,7 @@ wheels/
 # OS
 .DS_Store
 Thumbs.db
+nul
 
 # Data files (large datasets)
 *.mp4

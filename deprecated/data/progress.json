@@ -1,0 +1,17 @@
+{
+  "current_index": 1,
+  "responses": [
+    {
+      "sample_id": "altmulti_124",
+      "user_answer": "B",
+      "correct_answer": "D",
+      "is_correct": false,
+      "time_spent_seconds": 20.63,
+      "timestamp": "2026-03-06T22:35:51.245221",
+      "user_id": "annotator_001"
+    }
+  ],
+  "last_saved": "2026-03-06T22:35:53.250629",
+  "user_id": "annotator_001",
+  "session_start": "2026-03-06T22:35:30.619418"
+}
