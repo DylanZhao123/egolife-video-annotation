@@ -12,6 +12,23 @@ try:
 except ImportError:
     HAS_STREAMLIT = False
 
+def parse_questions_data(data):
+    """
+    Parse questions data from already-loaded JSON
+
+    Args:
+        data: JSON data (dict or list)
+
+    Returns:
+        List of question dictionaries
+    """
+    if isinstance(data, list):
+        return data
+    elif isinstance(data, dict):
+        return [data]
+    else:
+        return []
+
 def load_questions(file_path):
     """
     Load questions from JSON file
