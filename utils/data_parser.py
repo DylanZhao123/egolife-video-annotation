@@ -45,10 +45,16 @@ def load_questions(file_path):
     else:
         return _load_questions_raw(file_path)
 
-@st.cache_data if HAS_STREAMLIT else lambda func: func
-def _load_questions_cached(file_path):
-    """Cached version of load_questions"""
-    return _load_questions_raw(file_path)
+# Apply cache decorator only if streamlit is available
+if HAS_STREAMLIT:
+    @st.cache_data
+    def _load_questions_cached(file_path):
+        """Cached version of load_questions"""
+        return _load_questions_raw(file_path)
+else:
+    def _load_questions_cached(file_path):
+        """Non-cached version (streamlit not available)"""
+        return _load_questions_raw(file_path)
 
 def _load_questions_raw(file_path):
     """Load questions without streamlit dependencies"""
