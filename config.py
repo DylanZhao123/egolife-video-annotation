@@ -30,10 +30,15 @@ SUPPORTED_IMAGE_FORMATS = ['.jpg', '.jpeg', '.png', '.webp']
 AUTO_SAVE_INTERVAL = 5  # Auto-save progress every N questions
 SHOW_FEEDBACK_DELAY = 2  # Seconds to show feedback before advancing
 
-# OneDrive settings (optional)
+# Google Drive settings
+GDRIVE_BASE_FOLDER = "https://drive.google.com/drive/folders/1DoVComPUp4juZ9tNFF7EhYYEXlkkBI6K?usp=sharing"
+
+# OneDrive settings (Long videos - 2 hour segments)
 ONEDRIVE_BASE_URL = "https://adminliveunc-my.sharepoint.com/personal/ziyangw_ad_unc_edu"
-# OneDrive folder containing all videos
 ONEDRIVE_VIDEO_FOLDER = "https://adminliveunc-my.sharepoint.com/:f:/g/personal/ziyangw_ad_unc_edu/IgA_aigeKcG-QKDy08QVHEiEARIVaWMqy6UH-1eFP7TijWA?e=aNCstX"
+
+# Default video source
+DEFAULT_VIDEO_SOURCE = "gdrive"  # Options: "gdrive" or "onedrive"
 
 # UI customization
 THEME_PRIMARY_COLOR = "#4CAF50"

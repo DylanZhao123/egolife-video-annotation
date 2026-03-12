@@ -9,17 +9,24 @@ from datetime import datetime
 import streamlit as st
 import config
 
-def save_response(response_data):
+def _resolve_response_file(response_file=None):
+    """Resolve response JSONL path."""
+    if response_file:
+        return Path(response_file)
+    return Path(config.DATA_DIR) / 'responses.jsonl'
+
+def save_response(response_data, response_file=None):
     """
     Save a single response to JSONL file
 
     Args:
         response_data: Dictionary containing response information
+        response_file: Optional path to JSONL file
 
     Returns:
         True if successful, False otherwise
     """
-    response_file = Path(config.DATA_DIR) / 'responses.jsonl'
+    response_file = _resolve_response_file(response_file)
 
     try:
         # Create data directory if it doesn't exist
@@ -27,21 +34,21 @@ def save_response(response_data):
 
         # Append to JSONL file
         with open(response_file, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(response_data) + '\n')
+            f.write(json.dumps(response_data, ensure_ascii=False) + '\n')
 
         return True
     except Exception as e:
         st.error(f"❌ Error saving response: {e}")
         return False
 
-def load_responses():
+def load_responses(filter_user_id=None, filter_dataset_id=None, response_file=None):
     """
     Load all responses from JSONL file
 
     Returns:
         List of response dictionaries
     """
-    response_file = Path(config.DATA_DIR) / 'responses.jsonl'
+    response_file = _resolve_response_file(response_file)
     responses = []
 
     try:
@@ -50,7 +57,12 @@ def load_responses():
                 for line in f:
                     line = line.strip()
                     if line:
-                        responses.append(json.loads(line))
+                        obj = json.loads(line)
+                        if filter_user_id and obj.get('user_id') != filter_user_id:
+                            continue
+                        if filter_dataset_id and obj.get('dataset_id') != filter_dataset_id:
+                            continue
+                        responses.append(obj)
     except Exception as e:
         st.error(f"❌ Error loading responses: {e}")
 

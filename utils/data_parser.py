@@ -12,22 +12,191 @@ try:
 except ImportError:
     HAS_STREAMLIT = False
 
+def _extract_clip_id_from_frame_path(frame_path):
+    """Extract clip ID from a frame path like .../DAY6_A1_JAKE_20503000/frame_0030.jpg."""
+    if not frame_path:
+        return None
+    try:
+        parent = Path(frame_path).parent.name
+        return parent if parent else None
+    except Exception:
+        return None
+
+def _normalize_hard_videoqa_item(item):
+    """
+    Normalize hierarchical_cap hard_videoqa_examples format into app schema.
+    """
+    options = item.get('options', []) or []
+    choices = []
+    for idx, opt in enumerate(options):
+        if isinstance(opt, dict):
+            label = str(opt.get('option', chr(ord('A') + idx))).strip().upper()
+            text = str(opt.get('text', '')).strip()
+            support_clip_id = _extract_clip_id_from_frame_path(opt.get('support_frame_path'))
+            choices.append({
+                'label': label,
+                'text': text,
+                'support_clip_id': support_clip_id,
+                'event_id': opt.get('event_id')
+            })
+        else:
+            label = chr(ord('A') + idx)
+            choices.append({'label': label, 'text': str(opt), 'support_clip_id': None})
+
+    query_frame_path = item.get('query_frame_path')
+    query_clip_id = _extract_clip_id_from_frame_path(query_frame_path) or item.get('query_time')
+
+    supporting_paths = item.get('supporting_evidence_frame_paths', []) or []
+    evidence_times = []
+    for fp in supporting_paths:
+        clip_id = _extract_clip_id_from_frame_path(fp)
+        if clip_id:
+            evidence_times.append({
+                'clip_id': clip_id,
+                'dense_caption_context': [],
+                'frame_path': fp
+            })
+
+    answer_label = str(item.get('answer', '')).strip().upper()
+    answer_support_clip_id = None
+    if evidence_times:
+        answer_support_clip_id = evidence_times[0].get('clip_id')
+
+    return {
+        'sample_id': item.get('qa_id', ''),
+        'query': item.get('question', ''),
+        'choices': choices,
+        'correct_choice': answer_label,
+        'query_time': query_clip_id,
+        'query_frame_path': query_frame_path,
+        'answer_support_clip_id': answer_support_clip_id,
+        'evidence_times': evidence_times,
+        'difficulty_tier': item.get('difficulty', 'unknown'),
+        'difficulty_score': item.get('difficulty_score', 0),
+        'query_type': item.get('type', 'event_retrieval_mcq'),
+        'reasoning_detailed': item.get('reasoning_detailed', {}),
+        'constraints_satisfied': item.get('constraints_satisfied', {}),
+        'raw_query_time': item.get('query_time', '')
+    }
+
+def _parse_day_time_to_clip_id(raw_time, identity):
+    """
+    Convert strings like 'Day1_20:46:30' or 'Day 6 19:16' to clip IDs:
+      DAY1_A1_JAKE_20463000
+    Returns None on parse failure.
+    """
+    if not raw_time or not identity:
+        return None
+
+    s = str(raw_time).strip()
+    # Match: Day1_20:46:30 or Day 1 20:46:30 or Day 1 20:46
+    import re
+    m = re.search(r'Day\s*([0-9]+)[ _-]*([0-9]{1,2}):([0-9]{2})(?::([0-9]{2}))?', s, flags=re.IGNORECASE)
+    if not m:
+        return None
+
+    day = int(m.group(1))
+    hh = int(m.group(2))
+    mm = int(m.group(3))
+    ss = int(m.group(4)) if m.group(4) is not None else 0
+    identity = str(identity).strip().upper()
+    return f"DAY{day}_{identity}_{hh:02d}{mm:02d}{ss:02d}00"
+
+def _normalize_rigorous_filtered_query_item(item):
+    """
+    Normalize rigorous verification filtered queries format into app schema.
+    """
+    options = item.get('options', []) or []
+    choices = []
+    for idx, opt in enumerate(options):
+        label = chr(ord('A') + idx)
+        choices.append({
+            'label': label,
+            'text': str(opt),
+            'support_clip_id': None
+        })
+
+    answer_index = item.get('answer_index')
+    correct_choice = ''
+    if isinstance(answer_index, int) and 0 <= answer_index < len(choices):
+        correct_choice = choices[answer_index]['label']
+
+    identity = item.get('identity', '')
+    raw_query_time = item.get('query_time', '')
+    query_clip_id = _parse_day_time_to_clip_id(raw_query_time, identity)
+
+    entity = item.get('entity')
+    if isinstance(entity, dict):
+        object_name = entity.get('canonical_object', '')
+    else:
+        object_name = str(entity) if entity is not None else ''
+
+    return {
+        'sample_id': item.get('query_id', ''),
+        'query': item.get('question', ''),
+        'choices': choices,
+        'correct_choice': correct_choice,
+        'query_time': query_clip_id or raw_query_time,
+        'raw_query_time': raw_query_time,
+        'answer_support_clip_id': None,
+        'evidence_times': [],
+        'difficulty_tier': item.get('difficulty', 'unknown'),
+        'difficulty_score': item.get('difficulty_score', 0),
+        'query_type': item.get('task_type', 'rigorous_query'),
+        'object_name': object_name,
+        'identity': identity,
+        'answer_text': item.get('answer_text', ''),
+        'reasoning': item.get('reasoning', ''),
+        'evidence_clip_uids': item.get('evidence_clip_uids', [])
+    }
+
+def normalize_question_item(item):
+    """
+    Normalize multiple possible schemas into one app-friendly schema.
+    """
+    if not isinstance(item, dict):
+        return {'sample_id': '', 'query': str(item), 'choices': [], 'correct_choice': ''}
+
+    # Already in current app schema
+    if 'choices' in item and 'query' in item:
+        return item
+
+    # New hard_videoqa_examples schema
+    if 'question' in item and 'options' in item and 'answer' in item:
+        return _normalize_hard_videoqa_item(item)
+
+    # Rigorous verification filtered query schema
+    if 'question' in item and 'options' in item and 'answer_index' in item:
+        return _normalize_rigorous_filtered_query_item(item)
+
+    return item
+
 def parse_questions_data(data):
     """
-    Parse questions data from already-loaded JSON
-
-    Args:
-        data: JSON data (dict or list)
-
-    Returns:
-        List of question dictionaries
+    Parse and normalize loaded JSON object into a list of question dicts.
+    Supports:
+      - list[question]
+      - {"qa_examples": [...]}
+      - {"items"/"data"/"samples": [...]}
+      - single question dict
     """
     if isinstance(data, list):
-        return data
+        items = data
     elif isinstance(data, dict):
-        return [data]
+        if isinstance(data.get('qa_examples'), list):
+            items = data['qa_examples']
+        elif isinstance(data.get('items'), list):
+            items = data['items']
+        elif isinstance(data.get('data'), list):
+            items = data['data']
+        elif isinstance(data.get('samples'), list):
+            items = data['samples']
+        else:
+            items = [data]
     else:
-        return []
+        items = []
+
+    return [normalize_question_item(x) for x in items]
 
 def load_questions(file_path):
     """
@@ -45,23 +214,17 @@ def load_questions(file_path):
     else:
         return _load_questions_raw(file_path)
 
-# Apply cache decorator only if streamlit is available
-if HAS_STREAMLIT:
-    @st.cache_data
-    def _load_questions_cached(file_path):
-        """Cached version of load_questions"""
-        return _load_questions_raw(file_path)
-else:
-    def _load_questions_cached(file_path):
-        """Non-cached version (streamlit not available)"""
-        return _load_questions_raw(file_path)
+@st.cache_data if HAS_STREAMLIT else lambda func: func
+def _load_questions_cached(file_path):
+    """Cached version of load_questions"""
+    return _load_questions_raw(file_path)
 
 def _load_questions_raw(file_path):
     """Load questions without streamlit dependencies"""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            return data if isinstance(data, list) else [data]
+            return parse_questions_data(data)
     except FileNotFoundError:
         if HAS_STREAMLIT:
             st.error(f"Data file not found: {file_path}")

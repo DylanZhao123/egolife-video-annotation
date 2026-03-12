@@ -59,3 +59,20 @@ credentials.json
 
 # Claude
 .claude/
+
+# Temporary files
+temp_compare/
+temp_compare_new/
+app_backup*.py
+app_new*.py
+app_new*.txt
+*_comparison.md
+compare_files.py
+convert_format*.py
+
+# Zip archives
+*.zip
+
+# Test data files (keep only essential ones in repo)
+filtered_queries_*.json
+hard_videoqa_*.json

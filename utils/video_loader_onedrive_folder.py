@@ -40,6 +40,31 @@ class VideoLoaderOneDriveFolder:
         """
         self._display_folder_link(clip_id)
 
+    def render_video(self, clip_id):
+        """
+        Render video (alias for display_video_link)
+
+        Args:
+            clip_id: Video clip ID
+        """
+        self._display_folder_link(clip_id)
+
+    def get_video_url(self, clip_id):
+        """
+        Get video URL (returns folder URL for OneDrive)
+
+        Args:
+            clip_id: Video clip ID
+
+        Returns:
+            Folder URL
+        """
+        return self.folder_url
+
+    def is_video_available(self, clip_id):
+        """Check if video is available (always True for folder-based)"""
+        return True
+
     def _display_folder_link(self, clip_id):
         """Display folder link with clip information"""
         st.markdown(f"""
