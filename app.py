@@ -760,10 +760,11 @@ def main():
 
         # Google Drive - no need for local evidence roots
         st.caption("Videos loaded from Google Drive")
+        st.caption(f"Dataset: {dataset_name}")
 
-        # Output ID is auto-derived from dataset name.
-        st.session_state.user_id = dataset_name
-        st.caption(f"Output ID (from dataset name): `{st.session_state.user_id}`")
+        # Initialize user_id if not exists
+        if 'user_id' not in st.session_state or not st.session_state.user_id:
+            st.session_state.user_id = "annotator_001"
 
         # Build dataset+output context and auto-resume to exact sample UID.
         question_uids = _build_question_uid_list(questions)
@@ -812,6 +813,18 @@ def main():
         st.session_state.active_dataset_id = dataset_id
         st.session_state.active_progress_key = progress_key
 
+        # User ID input
+        if 'user_id' not in st.session_state or not st.session_state.user_id:
+            st.session_state.user_id = st.text_input(
+                "Enter your Annotator ID:",
+                value="annotator_001",
+                key="user_id_input"
+            )
+        else:
+            st.info(f"Annotator: {st.session_state.user_id}")
+
+        st.markdown("---")
+
         completed_uids = {
             r.get('question_uid') for r in st.session_state.responses if r.get('question_uid')
         }
@@ -830,7 +843,7 @@ def main():
         st.caption(f"Progress: {progress*100:.1f}%")
 
         st.markdown("---")
-        st.info(f"Output ID: {st.session_state.user_id}")
+        st.caption(f"Dataset: {dataset_name}")
         st.caption(f"Resume key: {progress_key}")
         checkpoint = st.session_state.get('resume_checkpoint', {})
         with st.expander("Resume Status", expanded=True):
