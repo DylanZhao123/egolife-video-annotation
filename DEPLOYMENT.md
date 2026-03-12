@@ -4,15 +4,21 @@
 
 **GitHub Repository**: https://github.com/DylanZhao123/egolife-video-annotation
 **Streamlit Cloud**: https://egolife-video-annotation-a9stffvxovjypbfhcbbhnp.streamlit.app/
-**Latest Commit**: b9afa52 - Upgrade to advanced annotation UI with video source toggle
+**Latest Commit**: d849ccf - Smart video path resolution with auto-matching
 
 ---
 
 ## 🎯 New Features
 
-### 1. Video Source Toggle
+### 1. **Smart Video Path Resolution** ⭐ NEW
+- Automatic parsing of clip_id format (e.g., `DAY1_A3_TASHA_14143000`)
+- Displays precise navigation path: `A3_TASHA → DAY1 → DAY1_A3_TASHA_14143000.mp4`
+- No manual URL mapping required for basic navigation
+- Works with Google Drive folder structure automatically
+
+### 2. Video Source Toggle
 - **Toggle Button** in sidebar to switch between:
-  - **Google Drive**: 30-second clips (embedded when mapped, folder link otherwise)
+  - **Google Drive**: 30-second clips with smart path hints
   - **OneDrive**: Full videos (folder link for searching)
 
 ### 2. Advanced Evidence System
