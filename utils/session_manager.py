@@ -6,9 +6,21 @@ Handles session state initialization, progress saving, and recovery
 import streamlit as st
 import json
 import time
+import re
 from pathlib import Path
 from datetime import datetime
 import config
+
+def _sanitize_key(text):
+    text = str(text)
+    text = re.sub(r'[^a-zA-Z0-9._-]+', '_', text)
+    return text[:180] if len(text) > 180 else text
+
+def _progress_file(progress_key=None):
+    if not progress_key:
+        return Path(config.DATA_DIR) / 'progress.json'
+    safe_key = _sanitize_key(progress_key)
+    return Path(config.DATA_DIR) / f'progress_{safe_key}.json'
 
 def initialize_session():
     """Initialize Streamlit session state variables"""
@@ -28,7 +40,7 @@ def initialize_session():
     if 'user_id' not in st.session_state:
         st.session_state.user_id = ""
 
-def save_progress(current_index, responses):
+def save_progress(current_index, responses, progress_key=None, extra_state=None):
     """
     Save current progress to file
 
@@ -36,7 +48,7 @@ def save_progress(current_index, responses):
         current_index: Current question index
         responses: List of response dictionaries
     """
-    progress_file = Path(config.DATA_DIR) / 'progress.json'
+    progress_file = _progress_file(progress_key)
 
     progress_data = {
         'current_index': current_index,
@@ -45,6 +57,8 @@ def save_progress(current_index, responses):
         'user_id': st.session_state.get('user_id', ''),
         'session_start': st.session_state.get('session_start_time', datetime.now()).isoformat()
     }
+    if extra_state and isinstance(extra_state, dict):
+        progress_data.update(extra_state)
 
     try:
         # Create data directory if it doesn't exist
@@ -58,14 +72,14 @@ def save_progress(current_index, responses):
         st.error(f"❌ Error saving progress: {e}")
         return False
 
-def load_progress():
+def load_progress(progress_key=None):
     """
     Load progress from file
 
     Returns:
         Progress dictionary or None if not found
     """
-    progress_file = Path(config.DATA_DIR) / 'progress.json'
+    progress_file = _progress_file(progress_key)
 
     try:
         if progress_file.exists():
@@ -77,9 +91,9 @@ def load_progress():
         st.warning(f"⚠️ Error loading progress: {e}")
         return None
 
-def clear_progress():
+def clear_progress(progress_key=None):
     """Delete progress file"""
-    progress_file = Path(config.DATA_DIR) / 'progress.json'
+    progress_file = _progress_file(progress_key)
 
     try:
         if progress_file.exists():
