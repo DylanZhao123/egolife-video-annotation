@@ -1,6 +1,7 @@
 """
 Google Drive Video Loader Module
 Handles video loading from Google Drive with embedded playback and fallback links
+Supports automatic path construction from clip_id
 """
 
 import re
@@ -9,11 +10,13 @@ from pathlib import Path
 import json
 
 class VideoLoaderGDrive:
-    """Manages video loading from Google Drive folders."""
+    """Manages video loading from Google Drive folders with smart path resolution."""
 
-    CLIP_PATTERN = re.compile(r'^(DAY\d+_A\d+_[A-Za-z0-9]+)_(\d{8})$', re.IGNORECASE)
+    # Pattern: DAY1_A3_TASHA_14143000
+    CLIP_PATTERN = re.compile(r'^(DAY\d+)_(A\d+_[A-Za-z0-9]+)_(\d{8})$', re.IGNORECASE)
+    # Pattern: DAY1_A3_TASHA_00000000_07200000
     SEGMENT_PATTERN = re.compile(
-        r'^(DAY\d+_A\d+_[A-Za-z0-9]+)_(\d{8})_(\d{8})$',
+        r'^(DAY\d+)_(A\d+_[A-Za-z0-9]+)_(\d{8})_(\d{8})$',
         re.IGNORECASE
     )
 
@@ -22,8 +25,8 @@ class VideoLoaderGDrive:
         Initialize Google Drive video loader
 
         Args:
-            base_folder_url: Base Google Drive folder URL
-            mapping_file: Optional JSON file mapping clip_id to specific URLs
+            base_folder_url: Base Google Drive folder URL (e.g., main folder with A3_TASHA, A1_JAKE subfolders)
+            mapping_file: Optional JSON file mapping clip_id to specific file URLs
         """
         self.base_folder_url = base_folder_url or ""
         self.mapping_file = mapping_file
@@ -45,6 +48,42 @@ class VideoLoaderGDrive:
         except Exception:
             pass
         return {}
+
+    def parse_clip_id(self, clip_id):
+        """
+        Parse clip_id to extract identity and day information
+
+        Args:
+            clip_id: e.g., "DAY1_A3_TASHA_14143000"
+
+        Returns:
+            dict with 'day', 'identity', 'timestamp' or None if parsing fails
+        """
+        if not clip_id:
+            return None
+
+        match = self.CLIP_PATTERN.match(str(clip_id))
+        if match:
+            day, identity, timestamp = match.groups()
+            return {
+                'day': day,           # DAY1
+                'identity': identity, # A3_TASHA
+                'timestamp': timestamp,  # 14143000
+                'filename': f"{clip_id}.mp4"  # Full filename
+            }
+
+        # Try segment pattern
+        match = self.SEGMENT_PATTERN.match(str(clip_id))
+        if match:
+            day, identity, start, end = match.groups()
+            return {
+                'day': day,
+                'identity': identity,
+                'timestamp': start,
+                'filename': f"{clip_id}.mp4"
+            }
+
+        return None
 
     def get_video_url(self, clip_id):
         """
@@ -141,35 +180,78 @@ class VideoLoaderGDrive:
             self._render_folder_link(clip_id, url)
 
     def _render_folder_link(self, clip_id, folder_url):
-        """Render folder link with search instructions"""
-        st.markdown(f"""
-        <div style="padding: 16px; background-color: #f8f9fa; border-radius: 8px; margin: 12px 0; border-left: 4px solid #4285f4;">
-            <p style="margin: 0 0 8px 0; font-size: 14px; color: #666; font-weight: 500;">
-                📹 <strong>Video:</strong> {clip_id}
-            </p>
-            <p style="margin: 0 0 12px 0; font-size: 13px; color: #888;">
-                Please find this video in the Google Drive folder below:
-            </p>
-            <a href="{folder_url}" target="_blank" style="
-                display: inline-block;
-                padding: 12px 24px;
-                background-color: #4285f4;
-                color: white;
-                text-decoration: none;
-                border-radius: 6px;
-                font-size: 14px;
-                font-weight: 600;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                transition: all 0.2s;
-            " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
-               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';">
-                📂 Open Google Drive Folder
-            </a>
-            <p style="margin: 12px 0 0 0; font-size: 12px; color: #999;">
-                Tip: Use Ctrl+F to search for "<strong>{clip_id}.mp4</strong>" in the folder
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        """Render folder link with search instructions and smart path hints"""
+        parsed = self.parse_clip_id(clip_id)
+
+        if parsed:
+            # Show specific path information
+            identity = parsed['identity']
+            day = parsed['day']
+            filename = parsed['filename']
+
+            path_hint = f"{identity} → {day} → {filename}"
+
+            st.markdown(f"""
+            <div style="padding: 16px; background-color: #f8f9fa; border-radius: 8px; margin: 12px 0; border-left: 4px solid #4285f4;">
+                <p style="margin: 0 0 8px 0; font-size: 14px; color: #666; font-weight: 500;">
+                    📹 <strong>Video:</strong> {clip_id}
+                </p>
+                <p style="margin: 0 0 8px 0; font-size: 13px; color: #4285f4; font-weight: 500;">
+                    📂 Path: {path_hint}
+                </p>
+                <p style="margin: 0 0 12px 0; font-size: 13px; color: #888;">
+                    Navigate to: <strong>{identity}</strong> folder → <strong>{day}</strong> subfolder
+                </p>
+                <a href="{folder_url}" target="_blank" style="
+                    display: inline-block;
+                    padding: 12px 24px;
+                    background-color: #4285f4;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    transition: all 0.2s;
+                " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';">
+                    📂 Open Google Drive Folder
+                </a>
+                <p style="margin: 12px 0 0 0; font-size: 12px; color: #999;">
+                    Tip: Once in the folder, navigate to <strong>{identity}/{day}/</strong> and search for "<strong>{filename}</strong>"
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            # Fallback for unparseable clip_id
+            st.markdown(f"""
+            <div style="padding: 16px; background-color: #f8f9fa; border-radius: 8px; margin: 12px 0; border-left: 4px solid #4285f4;">
+                <p style="margin: 0 0 8px 0; font-size: 14px; color: #666; font-weight: 500;">
+                    📹 <strong>Video:</strong> {clip_id}
+                </p>
+                <p style="margin: 0 0 12px 0; font-size: 13px; color: #888;">
+                    Please find this video in the Google Drive folder below:
+                </p>
+                <a href="{folder_url}" target="_blank" style="
+                    display: inline-block;
+                    padding: 12px 24px;
+                    background-color: #4285f4;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                    transition: all 0.2s;
+                " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.15)';"
+                   onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)';">
+                    📂 Open Google Drive Folder
+                </a>
+                <p style="margin: 12px 0 0 0; font-size: 12px; color: #999;">
+                    Tip: Use Ctrl+F to search for "<strong>{clip_id}.mp4</strong>" in the folder
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
     def add_video_mapping(self, clip_id, video_url):
         """
