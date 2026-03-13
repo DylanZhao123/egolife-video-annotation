@@ -1,170 +1,138 @@
-# Deployment Guide for Video Annotation System
+# Streamlit Cloud 部署指南 / Deployment Guide
 
-## ✅ Deployment Status
+## 🚀 快速部署 Quick Deploy
 
-**GitHub Repository**: https://github.com/DylanZhao123/egolife-video-annotation
-**Streamlit Cloud**: https://egolife-video-annotation-a9stffvxovjypbfhcbbhnp.streamlit.app/
-**Latest Commit**: d849ccf - Smart video path resolution with auto-matching
+### 1. 准备工作 Prerequisites
 
----
+- ✅ GitHub 账号
+- ✅ Streamlit Cloud 账号（可以用GitHub登录）
+- ✅ 本项目已推送到 GitHub
 
-## 🎯 New Features
+### 2. 部署步骤 Deployment Steps
 
-### 1. **Smart Video Path Resolution** ⭐ NEW
-- Automatic parsing of clip_id format (e.g., `DAY1_A3_TASHA_14143000`)
-- Displays precise navigation path: `A3_TASHA → DAY1 → DAY1_A3_TASHA_14143000.mp4`
-- No manual URL mapping required for basic navigation
-- Works with Google Drive folder structure automatically
+#### 方式一：使用 Streamlit Cloud 界面部署（推荐）
 
-### 2. Video Source Toggle
-- **Toggle Button** in sidebar to switch between:
-  - **Google Drive**: 30-second clips with smart path hints
-  - **OneDrive**: Full videos (folder link for searching)
+1. **访问 Streamlit Cloud**
+   - 打开：https://share.streamlit.io/
+   - 使用 GitHub 账号登录
 
-### 2. Advanced Evidence System
-- **Three Evidence Groups**:
-  - Query Evidence (find anchor moment)
-  - Correct Option Evidence (verify ground truth)
-  - Distractor Evidence (check incorrect options)
-- Each with annotation guidance
+2. **创建新应用 New App**
+   - 点击 "New app" 按钮
+   - 选择你的 GitHub 仓库：`DylanZhao123/egolife-video-annotation`
+   - Branch: `main`
+   - Main file path: `app.py`
+   - 点击 "Deploy"
 
-### 3. Download Functionality
-- Export responses to server
-- Download button appears after export
-- JSONL format with timestamp
+3. **等待部署完成**
+   - 首次部署需要 2-5 分钟
+   - Streamlit 会自动安装 requirements.txt 中的依赖
 
-### 4. Multi-Dataset Support
-- Dynamic dataset detection from JSON
-- Per-dataset response files
-- User and dataset filtering
+4. **获取应用URL**
+   - 部署成功后会自动分配一个URL
+   - 格式：`https://[your-app-name].streamlit.app`
 
----
+### 3. 配置说明 Configuration
 
-## 🚀 Streamlit Cloud Deployment
+#### 必需文件 Required Files
 
-### Auto-Deployment
-Streamlit Cloud is configured to auto-deploy from the `main` branch. The latest push will trigger automatic redeployment.
+- ✅ `app.py` - 主应用文件
+- ✅ `requirements.txt` - Python 依赖
+- ✅ `config.py` - 应用配置
+- ✅ `.streamlit/config.toml` - Streamlit 配置
+- ✅ `utils/` - 工具模块目录
 
-### Manual Trigger (if needed)
-1. Go to https://share.streamlit.io/
-2. Login with your account
-3. Find "egolife-video-annotation" app
-4. Click "Reboot" if auto-deploy doesn't trigger
+#### 数据文件 Data Files
 
-### Expected Deployment Time
-- Usually 2-5 minutes after push
-- Check deployment logs in Streamlit Cloud dashboard
+默认数据文件路径：
+- `data/A3_TASHA_human_adaptive_mcq_candidates_v1_low_risk.json`
+- `data/video_mapping.json`
 
----
+你可以在部署后通过应用界面上传新的JSON文件。
 
-## 📋 Configuration
+### 4. Google Drive 视频配置
 
-### Video Sources
-Both sources are pre-configured in `config.py`:
+视频通过 Google Drive 分享链接访问，已在 `config.py` 中配置：
 
 ```python
-# Google Drive (30s clips)
 GDRIVE_BASE_FOLDER = "https://drive.google.com/drive/folders/1DoVComPUp4juZ9tNFF7EhYYEXlkkBI6K?usp=sharing"
-
-# OneDrive (Full videos)
-ONEDRIVE_VIDEO_FOLDER = "https://adminliveunc-my.sharepoint.com/:f:/g/personal/ziyangw_ad_unc_edu/IgA_aigeKcG-QKDy08QVHEiEARIVaWMqy6UH-1eFP7TijWA?e=aNCstX"
 ```
 
-### Video Mapping (Optional)
-To enable embedded Google Drive videos, create `data/video_mapping.json`:
+确保：
+1. ✅ Google Drive 文件夹设置为"任何人可查看"
+2. ✅ `data/video_mapping.json` 已正确配置视频ID映射
+3. ✅ 视频文件命名格式：`DAYx_A3_TASHA_xxxxxxxx.mp4`
+
+### 5. 验证部署 Verify Deployment
+
+部署成功后，访问你的应用URL，检查：
+
+1. ✅ 页面正常加载
+2. ✅ 侧边栏显示问题列表
+3. ✅ 可以选择视频源（Google Drive / OneDrive）
+4. ✅ 可以上传JSON文件
+5. ✅ 视频可以正常播放
+
+### 6. 常见问题 Troubleshooting
+
+#### 问题：视频无法播放
+**解决方案：**
+- 检查 Google Drive 分享权限
+- 确认 `video_mapping.json` 中的视频ID正确
+- 检查视频文件格式是否支持
+
+#### 问题：应用启动失败
+**解决方案：**
+- 检查 `requirements.txt` 依赖是否完整
+- 查看 Streamlit Cloud 的日志输出
+- 确认所有必需文件都已推送到 GitHub
+
+#### 问题：JSON文件解析失败
+**解决方案：**
+- 使用 `test_json_compatibility.py` 测试JSON文件
+- 确认JSON格式符合要求（见数据格式说明）
+
+### 7. 更新应用 Update App
+
+每次推送代码到 GitHub 后，Streamlit Cloud 会自动重新部署：
+
+```bash
+git add .
+git commit -m "Update annotation system"
+git push origin main
+```
+
+等待 2-3 分钟，应用会自动更新。
+
+## 📝 数据格式说明 Data Format
+
+### JSON 文件格式
+
+支持的JSON格式示例：
 
 ```json
-{
-  "DAY1_A3_TASHA_11103500": "https://drive.google.com/file/d/YOUR_FILE_ID/view",
-  "DAY1_A1_JAKE_10203000": "https://drive.google.com/file/d/ANOTHER_FILE_ID/view"
-}
+[
+  {
+    "sample_id": "A3_TASHA_q_00027",
+    "query": "Earlier, I noticed a case in this scene...",
+    "query_time": "DAY1_A3_TASHA_14143000",
+    "query_type": "object_reidentification",
+    "difficulty_tier": "hard",
+    "correct_choice": "E",
+    "choices": [
+      {"label": "A", "text": "Day 2 morning: case was visible..."}
+    ],
+    "evidence_times": [
+      {
+        "clip_id": "DAY1_A3_TASHA_11103500",
+        "timestamp_sec": 40235.0,
+        "source_role": "distractor_evidence"
+      }
+    ]
+  }
+]
 ```
 
-Videos with mappings will be embedded; others show folder links.
+## 🔗 相关链接 Links
 
----
-
-## 🧪 Testing Checklist
-
-After deployment, verify:
-
-- [ ] Video source toggle works (sidebar)
-- [ ] Google Drive shows folder links
-- [ ] OneDrive shows folder links
-- [ ] Evidence groups display correctly (3 sections)
-- [ ] Upload JSON file works
-- [ ] Export responses button works
-- [ ] Download responses button appears and downloads JSONL
-- [ ] Navigation (Previous/Next/Skip) works
-- [ ] Progress saving works
-- [ ] Annotation guidelines display
-
----
-
-## 📊 Usage Instructions for Annotators
-
-### 1. Select Video Source
-- In sidebar, choose between:
-  - **Google Drive** (recommended for 30s clips)
-  - **OneDrive** (for full videos)
-
-### 2. Load Data
-- Use default JSON path, or
-- Upload custom JSON file
-
-### 3. Annotate
-- Review **Query Evidence** first
-- Check **Correct Option Evidence**
-- Verify **Distractor Evidence**
-- Fill in verification form
-- Submit
-
-### 4. Export Results
-- Click **📥 Export Responses**
-- Click **⬇️ Download Responses**
-- Save JSONL file to your computer
-
----
-
-## 🔧 Troubleshooting
-
-### Videos Not Loading
-- Check video source toggle matches your data
-- For Google Drive: verify folder URL is accessible
-- For OneDrive: verify folder URL is accessible
-
-### Download Not Working
-- Must click Export first, then Download appears
-- Download button has timestamp key to prevent duplicates
-
-### Deployment Failed
-- Check Streamlit Cloud logs for errors
-- Verify all dependencies in `requirements.txt`
-- Check file permissions in repository
-
----
-
-## 📝 Future Enhancements
-
-### When Video Upload Completes
-1. Create `data/video_mapping.json` with file IDs
-2. Videos will auto-embed instead of showing folder links
-3. Better user experience with inline playback
-
-### Potential Features
-- Bulk upload multiple JSON files
-- Export to CSV format
-- Progress visualization dashboard
-- Annotation statistics per user
-
----
-
-## 🆘 Support
-
-**Issues**: https://github.com/DylanZhao123/egolife-video-annotation/issues
-**Contact**: Check repository for maintainer info
-
----
-
-Last Updated: 2026-03-12
-Version: 2.0.0 - Advanced Annotation UI
+- **GitHub 仓库**: https://github.com/DylanZhao123/egolife-video-annotation
+- **Streamlit Cloud**: https://share.streamlit.io/
